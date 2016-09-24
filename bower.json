@@ -1,0 +1,15 @@
+{
+  "name": "D3",
+  "authors": [
+    "gravy <mark.eades@gmail.com>"
+  ],
+  "description": "Charting library using D3",
+  "main": "",
+  "license": "MIT",
+  "homepage": "",
+  "private": true,
+  "dependencies": {
+    "jquery": "^3.1.1",
+    "d3": "^4.2.6"
+  }
+}
