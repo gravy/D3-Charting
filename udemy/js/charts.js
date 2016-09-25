@@ -35,12 +35,26 @@
     bar: function(data, options) {
       var w = 800;
       var h = 400;
+
+      var longestKey = 0;
+      data.forEach(function(item) {
+        if (item[options.key].length > longestKey) {
+          longestKey = item[options.key].length;
+        }
+      });
+
       var margin = {
         top: 58,
         right: 40,
-        bottom: 100,
+        bottom: 5 * longestKey + 55, // 1-60, 9-100, 27-170
         left: 80
       };
+
+      if (options.dimensions) {
+        if (options.dimensions.width) {w = options.dimensions.width;}
+        if (options.dimensions.height) {h = options.dimensions.height;}
+      }
+
       var width = w - margin.right - margin.left;
       var height = h - margin.top - margin.bottom;
 
@@ -141,7 +155,7 @@
             .attr("x", 0)
             .attr("y", 0)
             .style("text-anchor", "middle")
-            .attr("transform", "translate(" + width / 2 + ", 80)")
+            .attr("transform", "translate(" + (width / 2) + "," + (4 * longestKey + 45) + ")")
             .text(params.axisLabels.x);
         } else {
           // Update info
