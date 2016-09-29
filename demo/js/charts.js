@@ -204,7 +204,6 @@
                 .style("fill", "yellow");
             })
             .on("mousemove", function(d, i) {
-
             })
             .on("mouseout", function(d, i) {
               d3.select(this)
