@@ -54,6 +54,13 @@ var cerealOptions = {
 };
 plotChart(C.bar, cerealOptions, "csv");
 
+// Line chart
+var timeOptions = {
+  title: "Time Series",
+  data: './data/time_data.json'
+};
+plotChart(C.line, timeOptions, "json");
+
 
 
 

@@ -5,7 +5,7 @@ body, html {
 	font-size: 0.95em;
 	text-align: center;
 }
-#bar-chart {
+#chart {
 	background-color: #F5F2EB;
 	border: 1px solid #CCC;
 }
@@ -36,4 +36,27 @@ body, html {
 }
 .sort-button {
   margin-bottom: 30px;
+}
+.trendline {
+  fill: none;
+  stroke: #999;
+  stroke-width: 4px;
+  stroke-dasharray: 1;
+}
+.area {
+  opacity: 0.25;
+  fill: blue;
+  stroke: blue;
+}
+div.tooltip {
+  position: absolute;
+  text-align: center;
+  width: 100px;
+  height: 60px;
+  padding: 2px;
+  font: 12px sans-serif;
+  background: lightsteelblue;
+  border: 0px;
+  border-radius: 8px;
+  pointer-events: none;
 }

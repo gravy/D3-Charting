@@ -91,7 +91,7 @@
         .orient("left");
 
       var svg = d3.select("body").append("svg")
-        .attr("id", "bar-chart")
+        .attr("id", "chart")
         .attr("width", w)
         .attr("height", h);
 
@@ -325,6 +325,176 @@
         gridlines: yGridlines,
         initialize: true
       });
+    },
+
+    line: function(data, options) {
+      var w = 800;
+      var h = 450;
+
+      var margin = {
+        top: 58,
+        bottom: 100,
+        left: 80,
+        right: 40
+      };
+
+      var width = w - margin.left - margin.right;
+      var height = h - margin.top - margin.bottom;
+
+      var svg = d3.select("body").append("svg")
+        .attr("id", "chart")
+        .attr("width", w)
+        .attr("height", h);
+
+      var chart = svg.append("g")
+        .classed("display", true)
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+      chart.append("text")
+        .attr("id", "chart-title")
+        .attr("x", (width / 8))
+        .attr("y", 0 - (margin.top / 2))
+        .text(options.title);
+
+      var dateParser = d3.time.format("%Y/%m/%d").parse;
+
+      var x = d3.time.scale()
+        .domain(d3.extent(data, function(d) {
+          var date = dateParser(d.date);
+          return date;
+        }))
+        .range([0, width]);
+
+      var y = d3.scale.linear()
+        .domain([0, d3.max(data, function(d) {
+          return d.value;
+        })])
+        .range([height, 0]);
+
+      var xAxis = d3.svg.axis()
+        .scale(x)
+        .orient("bottom")
+        .ticks(d3.time.days, 7)
+        .tickFormat(d3.time.format("%m/%d"));
+
+      var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left")
+        .ticks(5);
+
+      var line = d3.svg.line()
+        .x(function(d) {
+          var date = dateParser(d.date);
+          return x(date);
+        })
+        .y(function(d) {
+          return y(d.value);
+        })
+        .interpolate("cardinal");
+
+      var area = d3.svg.area()
+        .x(function(d) {
+          var date = dateParser(d.date);
+          return x(date);
+        })
+        .y0(height)
+        .y1(function(d) {
+          return y(d.value);
+        })
+        .interpolate("cardinal");
+
+      // Define the div for the tooltip
+      var div = d3.select("body").append("div")
+        .classed("tooltip", true)
+        .style("opacity", 0);
+
+      function plot(params) {
+        this.append("g")
+          .classed("x axis", true)
+          .attr("transform", "translate(0," + height + ")")
+          .call(params.axis.x);
+        this.append("g")
+          .classed("y axis", true)
+          .attr("transform", "translate(0,0)")
+          .call(params.axis.y);
+
+        // enter
+        this.selectAll(".area")
+          .data([params.data])
+          .enter()
+          .append("path")
+          .classed("area", true);
+
+        this.selectAll(".trendline")
+          .data([params.data])
+          .enter()
+            .append("path")
+            .classed("trendline", true);
+
+        this.selectAll(".point")
+          .data(params.data)
+          .enter()
+            .append("circle")
+            .classed("point", true)
+            .attr("r", 2)
+            .on("mouseover", function(d) {
+              div.transition()
+                .duration(200)
+                .style("opacity", .9);
+              div.html(dateParser(d.date) + "<br/>"  + d.value)
+                .style("left", (d3.event.pageX) + "px")
+                .style("top", (d3.event.pageY - 28) + "px");
+            })
+            .on("mouseout", function(d) {
+              div.transition()
+                .duration(500)
+                .style("opacity", 0);
+            });
+
+        // update
+        this.selectAll(".area")
+          .attr("d", function(d){
+            return area(d);
+          });
+
+        this.selectAll(".trendline")
+          .attr("d", function(d) {
+            return line(d);
+          });
+
+        this.selectAll(".point")
+          .attr("cx", function(d) {
+            var date = dateParser(d.date);
+            return x(date);
+          })
+          .attr("cy", function(d) {
+            return y(d.value);
+          });
+
+        // exit
+        this.selectAll(".area")
+          .data([params.data])
+          .exit()
+            .remove();
+
+        this.selectAll(".trendline")
+          .data([params.data])
+          .exit()
+            .remove();
+
+        this.selectAll(".point")
+          .data(params.data)
+          .exit()
+            .remove();
+      }
+
+      plot.call(chart, {
+        data: data,
+        axis: {
+          x: xAxis,
+          y: yAxis
+        }
+      })
     },
 
     log: function(msg) {
