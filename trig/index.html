@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Trig</title>
+	<link rel="stylesheet" href="main.css">
+  <script type="text/javascript" src="../libs/jquery/dist/jquery.min.js"></script>
+</head>
+<body>
+  <h1>Trigonometry</h1>
+  <svg xmlns="http://www.w3.org/2000/svg" version="1.1" class="svg-triangle">
+    <polygon points="0, 0 200, 0 100, 100"/>
+  </svg>
+
+  <script src="js/trig.js"></script>
+  <script>
+    var T = T$();
+    T.lengthOfOppositeSide('sin', 50, 6);
+    T.lengthOfOppositeSide('tan', 37, 3);
+
+    T.lengthOfAdjacentSide(55, 4);
+
+    T.lengthOfHypotenuse(72, 8.2);
+
+  </script>
+</body>
+</html>

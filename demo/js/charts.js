@@ -7,35 +7,28 @@
 
   Charts.prototype = {
 
-    csvToJSON: function(csv, valuePosition) {
-      var lines=csv.split("\n");
-      lines.pop();
+    plotChart: function(type, options) {
+      var self = this;
 
-      var result = [];
-      var headers=lines[0].split(",");
+      var format = options.data.substr(options.data.lastIndexOf('.') + 1);
 
-      for(var i = 1; i < lines.length; i++) {
-        var obj = {};
-        var currentLine = lines[i].split(",");
-
-        for(var j = 0; j < headers.length; j++) {
-          if (j === valuePosition) {
-            obj[headers[j]] = parseFloat(currentLine[j]);
-          } else {
-            obj[headers[j]] = currentLine[j];
-          }
-        }
-        result.push(obj);
+      if (format === 'csv') {
+        d3.csv(options.data, function(error, parsed_data) {
+          self[type](parsed_data, options);
+        })
+      } else {
+        d3.json(options.data, function(error, parsed_data) {
+          self[type](parsed_data, options);
+        })
       }
-      return result; //JavaScript object
-      //return JSON.stringify(result); //JSON
     },
 
     // Bar Chart
     bar: function(data, options) {
-      var w = 800;
-      var h = 400;
+      var w = C.w;
+      var h = C.h;
 
+      // Get the longest x value to calculate bottom margin
       var longestKey = 0;
       data.forEach(function(item) {
         if (item[options.key].length > longestKey) {
@@ -43,20 +36,14 @@
         }
       });
 
-      var margin = {
-        top: 58,
-        right: 40,
-        bottom: 5 * longestKey + 55, // 1-60, 9-100, 27-170
-        left: 80
-      };
-
       if (options.dimensions) {
         if (options.dimensions.width) {w = options.dimensions.width;}
         if (options.dimensions.height) {h = options.dimensions.height;}
       }
 
-      var width = w - margin.right - margin.left;
-      var height = h - margin.top - margin.bottom;
+      var width = w - C.margin.right - C.margin.left;
+      //var height = C.h - C.margin.top - C.margin.bottom;
+      var height = h - C.margin.top - (5 * longestKey + 55);
 
       var x = d3.scale.ordinal()
         .domain(data.map(function(entry) {
@@ -97,12 +84,12 @@
 
       var barChart = svg.append("g")
         .classed("display", true)
-        .attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
+        .attr("transform", "translate(" + C.margin.left + ", " + C.margin.top + ")");
 
       barChart.append("text")
         .attr("id", "chart-title")
         .attr("x", (width / 8))
-        .attr("y", 0 - (margin.top / 2))
+        .attr("y", 0 - (C.margin.top / 2))
         .text(options.title);
 
       var controls = d3.select('body')
@@ -327,33 +314,24 @@
       });
     },
 
+    // Line Chart
     line: function(data, options) {
-      var w = 800;
-      var h = 450;
-
-      var margin = {
-        top: 58,
-        bottom: 100,
-        left: 80,
-        right: 40
-      };
-
-      var width = w - margin.left - margin.right;
-      var height = h - margin.top - margin.bottom;
+      var width = C.w - C.margin.left - C.margin.right;
+      var height = C.h - C.margin.top - C.margin.bottom;
 
       var svg = d3.select("body").append("svg")
         .attr("id", "chart")
-        .attr("width", w)
-        .attr("height", h);
+        .attr("width", C.w)
+        .attr("height", C.h);
 
       var chart = svg.append("g")
         .classed("display", true)
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        .attr("transform", "translate(" + C.margin.left + "," + C.margin.top + ")");
 
       chart.append("text")
         .attr("id", "chart-title")
         .attr("x", (width / 8))
-        .attr("y", 0 - (margin.top / 2))
+        .attr("y", 0 - (C.margin.top / 2))
         .text(options.title);
 
       var dateParser = d3.time.format("%Y/%m/%d").parse;
@@ -497,6 +475,234 @@
       })
     },
 
+    scatter: function(data, options) {
+      var width = C.w - C.margin.left - C.margin.right;
+      var height = C.h - C.margin.top - C.margin.bottom;
+
+      var svg = d3.select("body").append("svg")
+        .attr("id", "chart")
+        .attr("width", C.w)
+        .attr("height", C.h);
+
+      var chart = svg.append("g")
+        .classed("display", true)
+        .attr("transform", "translate(" + C.margin.left + "," + C.margin.top + ")");
+
+      chart.append("text")
+        .attr("id", "chart-title")
+        .attr("x", (width / 8))
+        .attr("y", 0 - (C.margin.top / 2))
+        .text(options.title);
+
+      var colorScale = d3.scale.category10();
+
+      var x = d3.scale.linear()
+        .domain(d3.extent(data, function(d) {
+          return d.age;
+        }))
+        .range([0, width]);
+
+      // Get the highest y value to get y range
+      var highestValue = 0;
+      data.forEach(function(item) {
+        for (var key in item) {
+          if (item.hasOwnProperty(key)) {
+            if (key in options.dataKeys) {
+              if (options.dataKeys[key] === true && item[key] > highestValue) {
+                highestValue = item[key];
+              }
+            }
+          }
+        }
+      });
+      highestValue = Math.ceil(highestValue);
+
+      var y = d3.scale.linear()
+        .domain([1, highestValue])
+        .range([height, 0]);
+
+      var xAxis = d3.svg.axis()
+        .scale(x)
+        .tickValues(options.tickValues)
+        .orient("bottom");
+
+      var xGridlines = d3.svg.axis()
+        .scale(x)
+        .tickValues(options.tickValues)
+        .tickSize(-height, -height)
+        .tickFormat("")
+        .orient("bottom");
+
+      var yAxis = d3.svg.axis()
+        .scale(y)
+        .ticks(5)
+        .tickSize(20)
+        .tickFormat(function(d) {
+          return d.toFixed(1);
+        })
+        .orient("left");
+
+      var yGridlines = d3.svg.axis()
+        .scale(y)
+        .tickSize(-width, 0, 0)
+        .tickFormat("")
+        .orient("left");
+
+      var responseScale = d3.scale.linear()
+        .domain(d3.extent(data, function(d) {
+          return d.responses;
+        }))
+        .range([2, 15]);
+
+      function drawAxis(params) {
+        if (params.initialize) {
+          this.append("g")
+            .classed("axis x", true)
+            .attr("transform", "translate(0, " + height + ")")
+            .call(params.axis.x);
+
+          this.append("g")
+            .classed("axis y", true)
+            .attr("transform", "translate(0,0)")
+            .call(params.axis.y);
+
+          this.append("g")
+            .classed("gridline x", true)
+            .attr("transform", "translate(0, " + height + ")")
+            .call(params.axis.gridlines.x);
+
+          this.append("g")
+            .classed("gridline y", true)
+            .attr("transform", "translate(0,0)")
+            .call(params.axis.gridlines.y);
+
+          this.select(".x.axis")
+            .append("text")
+            .classed("x axis-label", true)
+            .attr("transform", "translate(" + width / 2 + ", " + 48 + ")")
+            .text("Customer Age");
+
+          this.select(".y.axis")
+            .append("text")
+            .classed("y axis-label", true)
+            .attr("transform", "translate(" + -56 + ", " + height / 2 + ") rotate(-90)")
+            .text("Rating (1=Low, 5=High)");
+
+          this.append("g")
+            .append("text")
+            .classed("chart-header", true)
+            .attr("transform", "translate(0, -5)")
+            .text("");
+        }
+      }
+
+      function plot(params) {
+        var self = this;
+
+        drawAxis.call(self, params);
+
+        var xKey = '',
+            yKey = '';
+
+        var types = d3.keys(params.data[0]).filter(function(d) {
+          if (params.dataKeys[d] === 'xvalue') {
+            xKey = d;
+          } else if (params.dataKeys[d] === 'yvalue') {
+            yKey = d;
+          } else {
+            return d;
+          }
+        });
+
+        // enter for <g>
+        this.selectAll(".type")
+          .data(types)
+          .enter()
+            .append("g")
+            .attr("class", function(d) {
+              return d;
+            })
+            .classed("type", true);
+
+        // update fo <g>
+        this.selectAll(".type")
+          .style("fill", function(d, i) {
+            return colorScale(i);
+          })
+          .on("mouseover", function(d, i) {
+            d3.select(this)
+              .transition()
+              .style("opacity", 1)
+          })
+          .on("mouseout", function(d, i) {
+            d3.select(this)
+              .transition()
+              .style("opacity", 0.25)
+          });
+
+        types.forEach(function(type) {
+          var g = self.selectAll("g." + type);
+          var arr = params.data.map(function(d) {
+            return {
+              key: type,
+              value: d[type],
+              xValue: d[xKey],
+              yValue: d[yKey]
+            };
+          });
+
+          // enter
+          g.selectAll(".yvalue")
+            .data(arr)
+            .enter()
+              .append("circle")
+              .classed("yvalue", true);
+
+          // update
+          g.selectAll(".yvalue")
+            .attr("r", function(d) {
+              return responseScale(d.yValue);
+            })
+            .attr("cx", function(d) {
+              return x(d.xValue);
+            })
+            .attr("cy", function(d) {
+              return y(d.value)
+            })
+            .on("mouseover", function(d, i) {
+              var str = d.key + ": ";
+              str += "Age: " + d.xValue + " ";
+              str += "Responses: " + d.yValue + " ";
+              str += "Average Rating: " + d.value;
+              d3.select(".chart-header").text(str);
+            })
+            .on("mouseout", function(d, i) {
+              d3.select(".chart-header").text("");
+            });
+
+          // exit
+          g.selectAll(".yvalue")
+            .data(arr)
+            .exit()
+            .remove();
+        })
+      }
+
+      plot.call(chart, {
+        data: data,
+        dataKeys: options.dataKeys,
+        axis: {
+          x: xAxis,
+          y: yAxis,
+          gridlines: {
+            x: xGridlines,
+            y: yGridlines
+          }
+        },
+        initialize: true
+      })
+    },
+
     log: function(msg) {
       if (console) {
         console.log(msg);
@@ -511,6 +717,16 @@
   // Constructor - the actual object is created here, allowing to 'new' an object without calling 'new'
   Charts.init = function() {
     var self = this;
+
+    this.w = 800;
+    this.h = 400;
+
+    this.margin = {
+      top: 58,
+      bottom: 100,
+      left: 80,
+      right: 40
+    };
   };
 
   // Don't have to use the 'new' keyword

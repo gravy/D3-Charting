@@ -1,0 +1,20 @@
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: "Arial", sans-serif;
+  font-size: 0.95em;
+  text-align: center;
+}
+
+.svg-triangle{
+  margin: 0 auto;
+  width: 200px;
+  height: 200px;
+}
+
+.svg-triangle polygon {
+  /*fill:#98d02e;*/
+  fill: none;
+  stroke:#65b81d;
+  stroke-width:2;
+}

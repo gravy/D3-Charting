@@ -1,42 +1,70 @@
 // Initialize Chart library
 var C = C$();
 
-function plotChart(chartFunction, options, format) {
-  if (format === "csv") {
-    jQuery.get(options.data, function (csvData) {
-      var data = C.csvToJSON(csvData, options.valuePosition);
-      chartFunction(data, options);
-    });
-  } else {
-    jQuery.get(options.data, function(data) {
-      chartFunction(data, options);
-    });
+$('.choice').on('click', function(e) {
+  d3.select("svg").remove();
+  d3.select(".sort-button").remove();
+
+  switch (e.target.text) {
+    case 'Bar':
+      var donutOptions = {
+        title: "Donut Sales (JSON)",
+        data: "./data/donut_data.json",
+        key: "key",
+        value: "value",
+        xLabel: "Donut type",
+        yLabel: "Units sold",
+        showValues: true
+      };
+      C.plotChart('bar', donutOptions);
+      break;
+
+    case 'Bar(CSV)':
+      var letterOptions = {
+        title: "Letter Frequency (CSV)",
+        data: './data/bar_data.csv',
+        key: "letter",
+        value: "frequency",
+        valuePosition: 1,
+        xLabel: "Letter",
+        yLabel: "Frequency",
+        showValues: false
+      };
+      C.plotChart('bar', letterOptions);
+      break;
+
+    case 'Time Series':
+      var timeOptions = {
+        title: "Time Series",
+        data: './data/time_data.json'
+      };
+      C.plotChart('line', timeOptions);
+      break;
+
+    case 'Scatter':
+      var scatterOptions = {
+        title: "Donut Ratings by Age",
+        data: './data/survey_data.json',
+        dataKeys: {
+          glazed: true,
+          jelly: true,
+          powdered: true,
+          sprinkles: true,
+          age: 'xvalue',
+          responses: 'yvalue'
+        },
+        tickValues: [18, 25, 32, 39, 46, 53, 60, 67, 74]
+      };
+      C.plotChart('scatter', scatterOptions);
+
+      break;
+
+    default:
+
   }
-}
+});
 
-// Bar Charts
-var donutOptions = {
-  title: "Donut Sales (JSON)",
-  data: "./data/donut_data.json",
-  key: "key",
-  value: "value",
-  xLabel: "Donut type",
-  yLabel: "Units sold",
-  showValues: true
-};
-plotChart(C.bar, donutOptions, "json" );
 
-var letterOptions = {
-  title: "Letter Frequency (CSV)",
-  data: './data/bar_data.csv',
-  key: "letter",
-  value: "frequency",
-  valuePosition: 1,
-  xLabel: "Letter",
-  yLabel: "Frequency",
-  showValues: false
-};
-plotChart(C.bar, letterOptions, "csv");
 
 var cerealOptions = {
   title: "Cereal Calories",
@@ -52,17 +80,5 @@ var cerealOptions = {
   yLabel: "Calories",
   showValues: false
 };
-plotChart(C.bar, cerealOptions, "csv");
-
-// Line chart
-var timeOptions = {
-  title: "Time Series",
-  data: './data/time_data.json'
-};
-plotChart(C.line, timeOptions, "json");
-
-
-
-
-
+//plotChart(C.bar, cerealOptions, "csv");
 

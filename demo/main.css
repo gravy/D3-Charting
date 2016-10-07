@@ -5,6 +5,19 @@ body, html {
 	font-size: 0.95em;
 	text-align: center;
 }
+#title {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 24px;
+  color: #777;
+}
+#brand {
+  height: 42px;
+  position: relative;
+  top: -12px;
+}
 #chart {
 	background-color: #F5F2EB;
 	border: 1px solid #CCC;
@@ -47,6 +60,16 @@ body, html {
   opacity: 0.25;
   fill: blue;
   stroke: blue;
+}
+.type {
+  opacity: 0.25;
+}
+.axis-label {
+  text-anchor: middle;
+}
+.chart-header {
+  text-transform: capitalize;
+  font-size: 125%;
 }
 div.tooltip {
   position: absolute;
