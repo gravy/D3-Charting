@@ -1,6 +1,22 @@
 // Initialize Chart library
 var C = C$();
 
+var scatterOptions = {
+  title: "Donut Ratings by Age",
+  data: './data/survey_data.json',
+  dataKeys: {
+    glazed: true,
+    jelly: true,
+    powdered: true,
+    sprinkles: true,
+    age: 'xvalue',
+    responses: 'yvalue'
+  },
+  tickValues: [18, 25, 32, 39, 46, 53, 60, 67, 74]
+};
+C.plotChart('scatter', scatterOptions);
+
+
 $('.choice').on('click', function(e) {
   d3.select("svg").remove();
   d3.select(".sort-button").remove();
