@@ -2,13 +2,13 @@
 var C = C$();
 
 var scatterOptions = {
-  title: "Donut Ratings by Age",
+  title: "Auto Preferences by Age",
   data: './data/survey_data.json',
   dataKeys: {
-    glazed: true,
-    jelly: true,
-    powdered: true,
-    sprinkles: true,
+    ford: true,
+    chevrolet: true,
+    toyota: true,
+    chrysler: true,
     age: 'xvalue',
     responses: 'yvalue'
   },
@@ -59,13 +59,13 @@ $('.choice').on('click', function(e) {
 
     case 'Scatter':
       var scatterOptions = {
-        title: "Donut Ratings by Age",
+        title: "Auto Preferences by Age",
         data: './data/survey_data.json',
         dataKeys: {
-          glazed: true,
-          jelly: true,
-          powdered: true,
-          sprinkles: true,
+          ford: true,
+          chevrolet: true,
+          toyota: true,
+          chrysler: true,
           age: 'xvalue',
           responses: 'yvalue'
         },
