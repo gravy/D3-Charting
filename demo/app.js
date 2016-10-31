@@ -20,6 +20,7 @@ C.plotChart('scatter', scatterOptions);
 $('.choice').on('click', function(e) {
   d3.select("svg").remove();
   d3.select(".sort-button").remove();
+  d3.select("#controls").remove();
 
   switch (e.target.text) {
     case 'Bar':
@@ -47,6 +48,14 @@ $('.choice').on('click', function(e) {
         showValues: false
       };
       C.plotChart('bar', letterOptions);
+      break;
+
+    case 'Grouped Bar':
+      var groupedOptions = {
+        title: "Sales by Person and Month",
+        data: './data/sales.js'
+      };
+      C.plotChart('grouped', groupedOptions);
       break;
 
     case 'Time Series':
@@ -79,7 +88,6 @@ $('.choice').on('click', function(e) {
 
   }
 });
-
 
 
 var cerealOptions = {

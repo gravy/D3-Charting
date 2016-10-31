@@ -16,10 +16,12 @@
         d3.csv(options.data, function(error, parsed_data) {
           self[type](parsed_data, options);
         })
-      } else {
+      } else if (format === 'json') {
         d3.json(options.data, function(error, parsed_data) {
           self[type](parsed_data, options);
         })
+      } else {
+        self[type](options.data, options);
       }
     },
 
@@ -314,6 +316,211 @@
       });
     },
 
+    // Grouped Bar
+    grouped: function(data, options) {
+      var width = C.w + 250 - C.margin.left - C.margin.right;
+      var height = C.h + 100 - C.margin.top - C.margin.bottom;
+
+      var data = [];
+
+      var x0 = d3.scale.ordinal()
+        .rangeRoundBands([0, width], .1);
+
+      var x1 = d3.scale.ordinal();
+
+      var y = d3.scale.linear()
+        .range([height, 0]);
+
+      var color = d3.scale.category20();
+
+      var xAxis = d3.svg.axis()
+        .scale(x0)
+        .orient("bottom");
+
+      var yAxis = d3.svg.axis()
+        .scale(y)
+        .orient("left")
+        .tickFormat(d3.format(".2s"));
+
+      var yGridlines = d3.svg.axis()
+        .scale(y)
+        .tickSize(-width, 0, 0)
+        .tickFormat("")
+        .orient("left");
+
+      // Define the div for the tooltip
+      var div = d3.select("body").append("div")
+        .classed("tooltip small", true)
+        .style("opacity", 0);
+
+      var controls = d3.select('body')
+        .append("div")
+        .attr("id", "controls");
+
+      var sort_ascending_btn = controls.append("button")
+        .classed("sort-button", true)
+        .html("Ascending")
+        .attr("state", 0);
+
+      var sort_descending_btn = controls.append("button")
+        .classed("sort-button", true)
+        .html("Descending")
+        .attr("state", 1);
+
+      var sort_random_btn = controls.append("button")
+        .classed("sort-button", true)
+        .html("Random")
+        .attr("state", 2);
+
+      function plot(data) {
+        d3.select('svg').remove();
+
+        var svg = d3.select("body").append("svg")
+          .attr("width", width + C.margin.left + C.margin.right)
+          .attr("height", height + C.margin.top + C.margin.bottom)
+          .append("g")
+          .attr("transform", "translate(" + C.margin.left + "," + C.margin.top + ")");
+
+        // Draw the grid lines
+        svg.append("g")
+          .call(yGridlines)
+          .classed("gridline", true)
+          .attr("transform", "translate(0, 0)");
+
+        // Set the chart title
+        svg.append("text")
+          .attr("id", "chart-title")
+          .attr("x", (width / 8))
+          .attr("y", 0 - (C.margin.top / 2))
+          .text(options.title);
+
+        var monthNames = d3.keys(data[0]).filter(function(key) {
+          return key !== "name" && key !== "total" && key !== "months";
+        });
+
+        data.forEach(function(d) {
+          d.months = monthNames.map(function(name) { return {name: name, value: +d[name]}; });
+        });
+
+        x0.domain(data.map(function(d) { return d.name; }));
+        x1.domain(monthNames).rangeRoundBands([0, x0.rangeBand()]);
+        y.domain([0, d3.max(data, function(d) { return d3.max(d.months, function(d) { return d.value; }); })]);
+
+        svg.append("g")
+          .attr("class", "x axis")
+          .attr("transform", "translate(0," + height + ")")
+          .call(xAxis)
+          .append("text")
+          .attr("transform", "translate(" + (width / 2 + 20) + ", 45)")
+          .style("text-anchor", "end")
+          .text("Sales Person");
+
+        svg.append("g")
+          .attr("class", "y axis")
+          .call(yAxis)
+          .append("text")
+          .attr("transform", "translate(" + -66 + ", " + (height / 2 - 40) + ") rotate(-90)")
+          .attr("y", 6)
+          .attr("dy", ".71em")
+          .style("text-anchor", "end")
+          .text("Sales($)");
+
+        var salesName = svg.selectAll(".name")
+          .data(data)
+          .enter().append("g")
+          .attr("class", "name")
+          .attr("transform", function(d) { return "translate(" + x0(d.name) + ",0)"; });
+
+        salesName.selectAll("rect")
+          .data(function(d) { return d.months; })
+          .enter().append("rect")
+          .attr("width", x1.rangeBand())
+          .attr("x", function(d) { return x1(d.name); })
+          .attr("y", function(d) { return y(d.value); })
+          .attr("height", function(d) { return height - y(d.value); })
+          .style("fill", function(d) { return color(d.name); })
+          .on("mouseover", function(d) {
+            div.transition()
+              .duration(200)
+              .style("opacity", .9);
+            div.html( "$"  + d.value)
+              .style("left", (d3.event.pageX) + "px")
+              .style("top", (d3.event.pageY - 28) + "px");
+          })
+          .on("mouseout", function(d) {
+            div.transition()
+              .duration(500)
+              .style("opacity", 0);
+          });
+
+        var legend = svg.selectAll(".legend")
+          .data(monthNames.slice())
+          .enter().append("g")
+          .attr("class", "legend")
+          .attr("transform", function(d, i) { return "translate(0," + i * 20 + ")"; });
+
+        legend.append("rect")
+          .attr("x", width - 15)
+          .attr("width", 15)
+          .attr("height", 15)
+          .style("fill", color);
+
+        legend.append("text")
+          .attr("x", width - 24)
+          .attr("y", 9)
+          .attr("dy", ".35em")
+          .style("text-anchor", "end")
+          .text(function(d) { return d; });
+      }
+
+      function getData() {
+        // Reformat data into array of objects and add up sales
+        var arr = [];
+        for (var name in sales) {
+          if (sales.hasOwnProperty(name)) {
+            var obj = {name};
+            var total = 0;
+            for (var month in sales[name]) {
+              if (sales[name].hasOwnProperty(month)) {
+                obj[month] = sales[name][month];
+                total += sales[name][month];
+              }
+            }
+            obj.total = total;
+            arr.push(obj);
+          }
+        }
+        data = arr;
+        return data;
+      }
+
+      // Sort actions
+      sort_ascending_btn.on("click", function() {
+        data.sort(function (a, b) {
+          return a['total'] - b['total'];
+        });
+        plot(data);
+      });
+
+      sort_descending_btn.on("click", function() {
+        data.sort(function (a, b) {
+          return b['total'] - a['total'];
+        });
+        plot(data);
+      });
+
+      sort_random_btn.on("click", function() {
+        data.sort(function(a, b) {
+          var aRand = Math.random();
+          var bRand = Math.random();
+          return aRand - bRand;
+        });
+        plot(data);
+      });
+
+      plot(getData());
+    },
+
     // Line Chart
     line: function(data, options) {
       var width = C.w - C.margin.left - C.margin.right;
@@ -383,7 +590,7 @@
 
       // Define the div for the tooltip
       var div = d3.select("body").append("div")
-        .classed("tooltip", true)
+        .classed("tooltip large", true)
         .style("opacity", 0);
 
       function plot(params) {
@@ -476,6 +683,8 @@
     },
 
     scatter: function(data, options) {
+      C.margin.top += 25;
+      C.margin.bottom -= 25;
       var width = C.w - C.margin.left - C.margin.right;
       var height = C.h - C.margin.top - C.margin.bottom;
 
