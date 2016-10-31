@@ -1,4 +1,4 @@
-[
+var donuts = [
   {"key": "Glazed",     "value": 132},
   {"key": "Jelly",      "value": 71},
   {"key": "Holes",      "value": 337},
@@ -11,4 +11,4 @@
   {"key": "Eclair",     "value": 8},
   {"key": "Fritter",    "value": 17},
   {"key": "Bearclaw",   "value": 21}
-]
+];

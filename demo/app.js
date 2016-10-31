@@ -3,7 +3,7 @@ var C = C$();
 
 var scatterOptions = {
   title: "Auto Preferences by Age",
-  data: './data/survey_data.json',
+  data: autos,
   dataKeys: {
     ford: true,
     chevrolet: true,
@@ -26,7 +26,7 @@ $('.choice').on('click', function(e) {
     case 'Bar':
       var donutOptions = {
         title: "Donut Sales (JSON)",
-        data: "./data/donut_data.json",
+        data: donuts,
         key: "key",
         value: "value",
         xLabel: "Donut type",
@@ -60,8 +60,8 @@ $('.choice').on('click', function(e) {
 
     case 'Time Series':
       var timeOptions = {
-        title: "Time Series",
-        data: './data/time_data.json'
+        title: "Jelly Donut Sales by Date",
+        data: jelly
       };
       C.plotChart('line', timeOptions);
       break;
@@ -69,7 +69,7 @@ $('.choice').on('click', function(e) {
     case 'Scatter':
       var scatterOptions = {
         title: "Auto Preferences by Age",
-        data: './data/survey_data.json',
+        data: autos,
         dataKeys: {
           ford: true,
           chevrolet: true,

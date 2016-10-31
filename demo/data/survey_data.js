@@ -1,4 +1,4 @@
-[
+var autos = [
 	{"ford": 3.14, "chevrolet": 4.43, "toyota": 2.43, "chrysler": 3.86, "age": 18, "responses": 7},
 	{"ford": 3.00, "chevrolet": 3.67, "toyota": 2.67, "chrysler": 4.00, "age": 19, "responses": 3},
 	{"ford": 2.00, "chevrolet": 4.00, "toyota": 2.33, "chrysler": 4.33, "age": 20, "responses": 3},
@@ -50,4 +50,4 @@
 	{"ford": 3.00, "chevrolet": 2.50, "toyota": 3.75, "chrysler": 2.00, "age": 72, "responses": 4},
 	{"ford": 2.00, "chevrolet": 2.50, "toyota": 4.50, "chrysler": 2.50, "age": 73, "responses": 2},
 	{"ford": 3.00, "chevrolet": 2.00, "toyota": 4.00, "chrysler": 1.50, "age": 74, "responses": 2}
-]
+];

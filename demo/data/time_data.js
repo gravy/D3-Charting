@@ -1,4 +1,4 @@
-[
+var jelly = [
   {"key": "Jelly", "value": 60, "date": "2014/01/01" },
   {"key": "Jelly", "value": 58, "date": "2014/01/02" },
   {"key": "Jelly", "value": 59, "date": "2014/01/03" },
@@ -30,4 +30,4 @@
   {"key": "Jelly", "value": 39, "date": "2014/01/29" },
   {"key": "Jelly", "value": 40, "date": "2014/01/30" },
   {"key": "Jelly", "value": 39, "date": "2014/01/31" }
-]
+];

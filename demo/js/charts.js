@@ -9,8 +9,11 @@
 
     plotChart: function(type, options) {
       var self = this;
+      var format = 'other';
 
-      var format = options.data.substr(options.data.lastIndexOf('.') + 1);
+      if (typeof options.data !== 'object') {
+        var format = options.data.substr(options.data.lastIndexOf('.') + 1);
+      }
 
       if (format === 'csv') {
         d3.csv(options.data, function(error, parsed_data) {
@@ -684,7 +687,7 @@
 
     scatter: function(data, options) {
       C.margin.top += 25;
-      C.margin.bottom -= 25;
+      C.margin.bottom -= 10;
       var width = C.w - C.margin.left - C.margin.right;
       var height = C.h - C.margin.top - C.margin.bottom;
 
